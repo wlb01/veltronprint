@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- La impresora es Bluetooth clásico; sin BLE, sin internet -->
+    <uses-feature android:name="android.hardware.bluetooth" android:required="true" />
+
+    <!-- API ≤ 30: permisos en instalación -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <!-- API ≥ 31: permiso de Dispositivos cercanos (sin BLUETOOTH_SCAN: no buscamos dispositivos) -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <application
+        android:name=".VeltronPrintApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.VeltronPrint">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.VeltronPrint"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Enlace desde Registro: veltronprint://imprimir?d=<base64>
+                 Chrome usa: intent://imprimir?d=…#Intent;scheme=veltronprint;package=mx.veltrontech.print;end
+                 Módulo 005 procesa el Intent -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="veltronprint" android:host="imprimir" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

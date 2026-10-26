@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Veltron Print</string>
+
+    <!-- Pantalla Inicio -->
+    <string name="inicio_titulo">Veltron Print</string>
+    <string name="inicio_sin_impresora">No hay impresora vinculada</string>
+    <string name="inicio_boton_vincular">Vincular impresora</string>
+    <string name="inicio_boton_probar">Probar conexión</string>
+    <string name="inicio_boton_cambiar">Cambiar impresora</string>
+    <string name="inicio_estado_sin_probar">Sin probar</string>
+    <string name="inicio_estado_probando">Probando…</string>
+    <string name="inicio_estado_lista">Lista</string>
+    <string name="inicio_estado_no_responde">No responde</string>
+    <string name="inicio_ultima_prueba">Última prueba: %1$s</string>
+    <string name="inicio_label_impresora">Impresora</string>
+
+    <!-- Pantalla Elegir impresora -->
+    <string name="elegir_titulo">Elegir impresora</string>
+    <string name="elegir_ayuda">Empareja primero la impresora en los ajustes de Bluetooth de Android. El PIN suele ser 0000 o 1234.</string>
+    <string name="elegir_boton_ajustes_bt">Abrir ajustes de Bluetooth</string>
+    <string name="elegir_sin_dispositivos">No hay dispositivos emparejados.</string>
+    <string name="elegir_etiqueta_actual">Actual</string>
+    <string name="elegir_dispositivo_sin_nombre">Dispositivo sin nombre</string>
+
+    <!-- Aviso de permiso (Android 12+) -->
+    <string name="permiso_descripcion">Veltron Print necesita el permiso de Dispositivos cercanos para conectarse a la impresora.</string>
+    <string name="permiso_boton_dar">Dar permiso</string>
+    <string name="permiso_boton_ajustes">Abrir ajustes de la app</string>
+
+    <!-- Mensajes de error exactos (spec módulo 001 §5) -->
+    <string name="error_sin_bluetooth">Este equipo no tiene Bluetooth. Veltron Print no puede funcionar aquí.</string>
+    <string name="error_bluetooth_apagado">Bluetooth está apagado. Enciéndelo para usar la impresora.</string>
+    <string name="error_permiso_negado">Veltron Print necesita el permiso de Dispositivos cercanos para conectarse a la impresora.</string>
+    <string name="error_no_responde">La impresora no responde. Verifica que esté encendida, cerca del equipo y que ningún otro dispositivo esté conectado a ella.</string>
+    <string name="error_ya_no_emparejada">La impresora guardada ya no está emparejada. Vuelve a emparejarla o elige otra.</string>
+    <string name="error_conexion_perdida">Se perdió la conexión con la impresora mientras se enviaban los datos.</string>
+</resources>
