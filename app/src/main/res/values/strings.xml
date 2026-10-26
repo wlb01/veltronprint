@@ -77,4 +77,18 @@
 
     <!-- Módulo 004: Errores de contenido -->
     <string name="error_codigo_invalido">No se pudo generar un código del ticket. Revisa el contenido del QR o del código de barras.</string>
+
+    <!-- Módulo 005: Receptor de enlaces -->
+    <string name="rec_titulo_imprimiendo">Imprimiendo…</string>
+    <string name="rec_titulo_impreso">Ticket impreso</string>
+    <string name="rec_titulo_error">No se imprimió</string>
+    <string name="rec_subtitulo_regresando">Regresando…</string>
+    <string name="rec_boton_reintentar">Reintentar</string>
+    <string name="rec_boton_vincular">Vincular impresora</string>
+    <string name="rec_boton_cerrar">Cerrar</string>
+    <string name="error_rec_sin_datos">El enlace no trae ningún ticket para imprimir.</string>
+    <string name="error_rec_danado">El ticket llegó dañado y no se puede leer. Vuelve a imprimirlo desde Registro.</string>
+    <string name="error_rec_version">Este ticket usa una versión del formato que Veltron Print no conoce (v%1$d). Actualiza la app.</string>
+    <string name="error_rec_formato">El ticket tiene un error de formato y no se imprimió.</string>
+    <string name="error_rec_sin_impresora">No hay ninguna impresora vinculada.</string>
 </resources>

@@ -31,9 +31,20 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Enlace desde Registro: veltronprint://imprimir?d=<base64>
-                 Chrome usa: intent://imprimir?d=…#Intent;scheme=veltronprint;package=mx.veltrontech.print;end
-                 Módulo 005 procesa el Intent -->
+        </activity>
+
+        <!-- Módulo 005: recibe los enlaces veltronprint://imprimir?d=…
+             taskAffinity="": tarea propia, no altera la pila de MainActivity.
+             excludeFromRecents: no aparece como pantalla suelta en Recientes.
+             launchMode="standard": cada enlace abre su propia instancia; el Mutex de
+             PrinterConnection ordena las impresiones cuando llegan dos a la vez. -->
+        <activity
+            android:name=".recepcion.RecibirTrabajoActivity"
+            android:exported="true"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:launchMode="standard"
+            android:theme="@style/Theme.VeltronPrint">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

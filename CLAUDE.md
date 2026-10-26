@@ -57,6 +57,7 @@ Los colores viven únicamente en `ui/theme/Color.kt` y se usan a través de `Mat
 veltron-print/
 ├── CLAUDE.md
 ├── ESTADO_PROYECTO.md
+├── herramientas/             ← página de pruebas QA (fuera del APK)
 ├── specs/
 │   ├── constitution/
 │   │   ├── mission.md
@@ -83,6 +84,7 @@ veltron-print/
 │       │   │   ├── imagen/                ← 003 conversión a 1 bit y logo
 │       │   │   ├── codigos/               ← 004 QR y código de barras
 │       │   │   ├── contrato/              ← 005 modelos del JSON, validación y receptor de enlaces
+│       │   │   ├── recepcion/             ← 005 pantalla que recibe enlaces veltronprint://
 │       │   │   ├── datos/                 ← base de datos Room y DataStore
 │       │   │   ├── cola/                  ← 006 cola y reintento
 │       │   │   ├── historial/             ← 007

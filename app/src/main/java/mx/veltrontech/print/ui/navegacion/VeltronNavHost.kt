@@ -12,9 +12,9 @@ import mx.veltrontech.print.bluetooth.ElegirImpresoraScreen
 import mx.veltrontech.print.inicio.InicioScreen
 
 @Composable
-fun VeltronNavHost(container: AppContainer) {
+fun VeltronNavHost(container: AppContainer, startDestination: String = Rutas.INICIO) {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Rutas.INICIO) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable(Rutas.INICIO) {
             InicioScreen(
                 container = container,

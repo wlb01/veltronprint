@@ -9,3 +9,5 @@ val AzulProfundo = Color(0xFF08355E)  // superficies secundarias en oscuro
 val AzulClaro = Color(0xFF3973A1)     // detalles secundarios
 val DoradoEnergia = Color(0xFFFFD51D) // acento puntual, nunca como fondo
 val Blanco = Color(0xFFFFFFFF)        // fondo en modo claro
+val VerdeExito = Color(0xFF4CAF50)    // ícono de éxito en RecibirTrabajoScreen
+val RojoError = Color(0xFFF44336)     // ícono de error en RecibirTrabajoScreen

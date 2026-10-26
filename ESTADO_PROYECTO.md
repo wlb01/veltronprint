@@ -10,7 +10,24 @@
 | 002 Motor ESC/POS | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
 | 003 Imágenes y Logo | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
 | 004 QR y códigos de barras | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
-| 005–009 | Sin iniciar | — |
+| 005 Receptor de enlaces | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
+| 006–009 | Sin iniciar | — |
+
+## Módulo 005 — Receptor de enlaces
+
+**Completado (código):**
+- `kotlinx.serialization` añadido (plugin + `kotlinx-serialization-json 1.8.1`)
+- `contrato/ResultadosContrato`: sealed interfaces `ResultadoDecodificacion` y `ResultadoValidacion`
+- `contrato/DecodificadorEnlace`: Base64 URL-safe con `java.util.Base64.getUrlDecoder()` (API 26+); acepta con y sin relleno
+- `contrato/ValidadorTrabajo`: recorre el `JsonObject` a mano; tipos estrictos (no string para números ni booleanos); valida `v` primero para dar `VersionDesconocida` aunque lo demás esté mal; claves desconocidas ignoradas; detalle exacto con número de bloque
+- `recepcion/RecibirTrabajoViewModel`: `StateFlow<RecepcionUiState>` con estados `Imprimiendo`, `Impreso` y `Error`; guarda el `Trabajo` validado para "Reintentar"; cierre automático 2 s tras éxito vía `Channel`
+- `recepcion/RecibirTrabajoScreen`: tres estados con iconos (Print, CheckCircle, Warning); ancho máximo 480 dp; funciona en horizontal y vertical
+- `recepcion/RecibirTrabajoActivity`: Activity separada; `savedInstanceState == null` evita reprocesar al rotar; `finishAndRemoveTask()` al cerrar; "Vincular impresora" abre `MainActivity` con extra `abrir = "elegir_impresora"`
+- `AndroidManifest.xml`: intent-filter movido de `MainActivity` a `RecibirTrabajoActivity` con `taskAffinity=""` y `excludeFromRecents="true"`
+- `MainActivity` + `VeltronNavHost`: aceptan extra `abrir = "elegir_impresora"` como `startDestination`
+- Tests: `DecodificadorEnlaceTest` (8 tests), `ValidadorTrabajoTest` (26 tests incluye ticket oficial completo)
+
+**QA aprobado** — 2026-10-26. Commit `feat: receptor de enlaces veltronprint://` hecho.
 
 ## Módulo 004 — QR y códigos de barras
 
@@ -103,4 +120,4 @@
 
 ## Próximos pasos
 
-1. Iniciar módulo 005 (contrato de bloques y receptor de enlaces).
+1. Iniciar módulo 006 (cola de impresión y reintento automático).
