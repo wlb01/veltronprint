@@ -6,7 +6,7 @@
 
 | Módulo | Estado | Notas |
 |--------|--------|-------|
-| 001 Conexión Bluetooth | En progreso | Código completo, pendiente QA en dispositivo físico |
+| 001 Conexión Bluetooth | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
 | 002–009 | Sin iniciar | — |
 
 ## Módulo 001 — Conexión Bluetooth
@@ -20,10 +20,7 @@
 - Pantallas: Inicio (tarjeta con 4 estados), ElegirImpresora (lista adaptable horizontal/vertical)
 - Tests JUnit: PermisosBluetoothTest, OrdenarDispositivosTest
 
-**Pendiente:**
-- QA en Samsung Galaxy Tab S10 Lite (Android 16) y Honor X8 (Android 11)
-- Verificar los 17 criterios de aceptación de spec.md con la impresora real
-- Commit `feat: conexión Bluetooth con la impresora` (pendiente aprobación de Daniel)
+**QA aprobado** — 2026-10-25. Commit `feat: conexión Bluetooth con la impresora` hecho.
 
 ## Decisiones técnicas de esta sesión
 
@@ -36,6 +33,4 @@
 
 ## Próximos pasos
 
-1. Daniel hace QA en dispositivo físico con la impresora.
-2. Si todo pasa → Claude Code hace el commit del módulo 001.
-3. Iniciar módulo 002 (Motor ESC/POS).
+1. Iniciar módulo 002 (Motor ESC/POS) — bytes, comandos, codificación de texto.
