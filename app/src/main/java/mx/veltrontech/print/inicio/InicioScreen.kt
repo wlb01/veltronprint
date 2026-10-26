@@ -73,12 +73,10 @@ fun InicioScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
-    val msgExito = stringResource(R.string.prueba_snackbar_exito)
 
-    // Colecta el evento de una sola vez para el snackbar
     LaunchedEffect(viewModel) {
-        viewModel.eventoSnackbar.collect {
-            snackbarHostState.showSnackbar(msgExito)
+        viewModel.eventoSnackbar.collect { resId ->
+            snackbarHostState.showSnackbar(context.getString(resId))
         }
     }
 
@@ -164,33 +162,35 @@ fun InicioScreen(
                 // En tablet horizontal (>600dp) las tarjetas van lado a lado; en vertical, apiladas.
                 BoxWithConstraints(modifier = Modifier.widthIn(max = 840.dp).fillMaxWidth()) {
                     if (maxWidth > 600.dp) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            TarjetaImpresora(
-                                impresora = uiState.impresora,
-                                estado = uiState.estado,
-                                ultimaPrueba = uiState.ultimaPrueba,
-                                error = uiState.error,
-                                onVincular = {
-                                    if (BluetoothAdapter.getDefaultAdapter()?.isEnabled == false) {
-                                        @Suppress("DEPRECATION")
-                                        encenderBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-                                    } else {
-                                        onVincularImpresora()
-                                    }
-                                },
-                                onProbar = viewModel::probarConexion,
-                                onCambiar = onVincularImpresora,
-                                modifier = Modifier.weight(1f),
-                            )
-                            TarjetaPruebaImpresion(
-                                impresora = uiState.impresora,
-                                imprimiendo = uiState.imprimiendo,
-                                onImprimir = viewModel::imprimirPrueba,
-                                modifier = Modifier.weight(1f),
-                            )
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                TarjetaImpresora(
+                                    impresora = uiState.impresora,
+                                    estado = uiState.estado,
+                                    ultimaPrueba = uiState.ultimaPrueba,
+                                    error = uiState.error,
+                                    onVincular = {
+                                        if (BluetoothAdapter.getDefaultAdapter()?.isEnabled == false) {
+                                            @Suppress("DEPRECATION")
+                                            encenderBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+                                        } else {
+                                            onVincularImpresora()
+                                        }
+                                    },
+                                    onProbar = viewModel::probarConexion,
+                                    onCambiar = onVincularImpresora,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                TarjetaPruebaImpresion(
+                                    impresora = uiState.impresora,
+                                    imprimiendo = uiState.imprimiendo,
+                                    onImprimir = viewModel::imprimirPrueba,
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
                         }
                     } else {
                         Column(

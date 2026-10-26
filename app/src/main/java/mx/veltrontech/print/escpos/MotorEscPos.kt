@@ -1,5 +1,8 @@
 package mx.veltrontech.print.escpos
 
+import mx.veltrontech.print.codigos.CodigoInvalidoException
+import mx.veltrontech.print.codigos.GeneradorCodigoBarras
+import mx.veltrontech.print.codigos.GeneradorQr
 import mx.veltrontech.print.contrato.Bloque
 import mx.veltrontech.print.contrato.BloquePruebaTabla
 import mx.veltrontech.print.contrato.Fuente
@@ -47,8 +50,12 @@ class MotorEscPos(
         is Bloque.Separador -> generarSeparador(bloque)
         is Bloque.Espacio -> avanzarLineas(bloque.lineas)
         is Bloque.Logo -> if (logo != null) RasterEscPos.generar(logo, bloque.alinear) else ByteArray(0)
-        is Bloque.Qr -> generarTextoSimple("[QR]", bloque.alinear.ordinal)
-        is Bloque.CodigoBarras -> generarTextoSimple("[CÓDIGO DE BARRAS]", bloque.alinear.ordinal)
+        is Bloque.Qr -> RasterEscPos.generar(GeneradorQr.generarQr(bloque.valor, bloque.tamano), bloque.alinear)
+        is Bloque.CodigoBarras -> {
+            val imagen = RasterEscPos.generar(GeneradorCodigoBarras.generarCode128(bloque.valor), bloque.alinear)
+            if (bloque.mostrarTexto) imagen + generarTextoSimple(bloque.valor, bloque.alinear.ordinal)
+            else imagen
+        }
         is Bloque.Corte -> cortar(bloque.modo ?: corteDefault)
         Bloque.Cajon -> ABRIR_CAJON
         is BloquePruebaTabla -> generarPruebaTabla(bloque)

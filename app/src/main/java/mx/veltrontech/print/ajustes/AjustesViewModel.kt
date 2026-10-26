@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import mx.veltrontech.print.R
 import mx.veltrontech.print.bluetooth.ResultadoEnvio
 import mx.veltrontech.print.datos.PreferenciasRepository
+import mx.veltrontech.print.escpos.ResultadoImpresion
 import mx.veltrontech.print.escpos.ServicioImpresion
 import mx.veltrontech.print.imagen.ConversorImagen
 import mx.veltrontech.print.imagen.EdicionLogo
@@ -145,7 +146,11 @@ class AjustesViewModel(
         viewModelScope.launch {
             val resultado = servicioImpresion.imprimirLogoPrueba()
             _uiState.update { it.copy(imprimiendo = false) }
-            resultado.aStringRes()?.let { _eventoSnackbar.send(it) }
+            when (resultado) {
+                ResultadoImpresion.Exito -> Unit
+                is ResultadoImpresion.ErrorContenido -> _eventoSnackbar.send(resultado.mensajeRes)
+                is ResultadoImpresion.ErrorConexion -> resultado.resultado.aStringRes()?.let { _eventoSnackbar.send(it) }
+            }
         }
     }
 

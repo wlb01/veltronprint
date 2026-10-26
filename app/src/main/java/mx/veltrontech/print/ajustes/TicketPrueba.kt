@@ -4,6 +4,7 @@ import mx.veltrontech.print.contrato.Alineacion
 import mx.veltrontech.print.contrato.Bloque
 import mx.veltrontech.print.contrato.BloquePruebaTabla
 import mx.veltrontech.print.contrato.Fuente
+import mx.veltrontech.print.contrato.TamanoQr
 import mx.veltrontech.print.contrato.Trabajo
 import mx.veltrontech.print.escpos.TablaCaracteres
 
@@ -73,6 +74,18 @@ fun ticketPrueba(): Trabajo = Trabajo(
         Bloque.Texto("PRUEBA DE ACENTOS", negrita = true),
         BloquePruebaTabla("CP850:   áéíóú ÁÉÍÓÚ ñÑ üÜ ¿¡ \$ °", TablaCaracteres.CP850),
         BloquePruebaTabla("WIN1252: áéíóú ÁÉÍÓÚ ñÑ üÜ ¿¡ \$ °", TablaCaracteres.WIN1252),
+
+        // Prueba de códigos
+        Bloque.Separador(),
+        Bloque.Texto("PRUEBA DE CÓDIGOS", alinear = Alineacion.CENTRO, negrita = true),
+        Bloque.Texto("QR chico", alinear = Alineacion.CENTRO),
+        Bloque.Qr("https://veltrontech.mx/terminos", tamano = TamanoQr.CHICO),
+        Bloque.Texto("QR mediano", alinear = Alineacion.CENTRO),
+        Bloque.Qr("https://veltrontech.mx/terminos", tamano = TamanoQr.MEDIANO),
+        Bloque.Texto("QR grande", alinear = Alineacion.CENTRO),
+        Bloque.Qr("https://veltrontech.mx/terminos", tamano = TamanoQr.GRANDE),
+        Bloque.Texto("Código de barras del folio", alinear = Alineacion.CENTRO),
+        Bloque.CodigoBarras("MZT-OCT26-0042", mostrarTexto = true, alinear = Alineacion.CENTRO),
 
         Bloque.Corte(),
     ),

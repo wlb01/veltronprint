@@ -42,13 +42,11 @@ class RasterEscPosTest {
         for (i in 432 until 576) assertFalse(posicionada.negros[i])
     }
 
-    // generar: imagen de 300 filas → 3 comandos GS v 0 (128 + 128 + 44)
-    @Test fun generar300FilasCrea3Comandos() {
+    // generar: imagen de 300 filas → 1 único GS v 0 con yH=1 (300 > 255)
+    @Test fun generar300FilasUnicoComando() {
         val negros = BooleanArray(576 * 300) { false }
         val imagen = ImagenMonocromo(576, 300, negros)
         val bytes = RasterEscPos.generar(imagen, Alineacion.IZQUIERDA)
-        // Cabecera GS v 0 = 8 bytes. 3 comandos → al menos 3 cabeceras.
-        // El patrón 0x1D 0x76 0x30 0x00 aparece 3 veces.
         var count = 0
         var i = 0
         while (i < bytes.size - 3) {
@@ -59,10 +57,13 @@ class RasterEscPosTest {
                 i += 4
             } else i++
         }
-        assertEquals(3, count)
+        assertEquals(1, count)
+        // yL = 300 & 0xFF = 44 = 0x2C, yH = 1 = 0x01
+        assertEquals(0x2C.toByte(), bytes[6])
+        assertEquals(0x01.toByte(), bytes[7])
     }
 
-    // encabezado GS v 0 para franja 576×128:
+    // encabezado GS v 0 para imagen 576×128:
     // anchoBytes=72 (0x48), alto=128 (0x80)
     // → 1D 76 30 00 48 00 80 00
     @Test fun cabecera576x128() {

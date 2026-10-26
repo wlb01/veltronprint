@@ -1,6 +1,6 @@
 # Estado del Proyecto — Veltron Print
 
-Última actualización: 2026-10-25
+Última actualización: 2026-10-26
 
 ## Estado general
 
@@ -9,7 +9,27 @@
 | 001 Conexión Bluetooth | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
 | 002 Motor ESC/POS | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
 | 003 Imágenes y Logo | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
-| 004–009 | Sin iniciar | — |
+| 004 QR y códigos de barras | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
+| 005–009 | Sin iniciar | — |
+
+## Módulo 004 — QR y códigos de barras
+
+**Completado (código):**
+- `codigos/CodigoInvalidoException`: excepción de dominio para contenido inválido
+- `codigos/GeneradorQr`: ZXing `Encoder.encode()` directo, nivel M, margen 4 módulos, 4/6/8 px por módulo según `TamanoQr`; reduce el factor si no cabe en 576 px
+- `codigos/GeneradorCodigoBarras`: `Code128Writer`, 1–40 chars ASCII imprimible, margen 10 unidades, módulo de 2 px (1 si no cabe), alto 80 px
+- `escpos/ResultadoImpresion`: sealed interface con `Exito`, `ErrorConexion(ResultadoEnvio)`, `ErrorContenido(mensajeRes: Int)`; reemplaza `ResultadoEnvio` como tipo de retorno de `ServicioImpresion`
+- `MotorEscPos`: bloques `Qr` y `CodigoBarras` generan `ImagenMonocromo` y la pasan a `RasterEscPos.generar()`
+- `ServicioImpresion`: atrapa `CodigoInvalidoException` y devuelve `ErrorContenido`
+- `InicioViewModel` / `AjustesViewModel`: actualizados para `ResultadoImpresion`; snackbar lleva `Int` (resource ID)
+- `TicketPrueba`: sección "PRUEBA DE CÓDIGOS" con los tres tamaños de QR y un código de barras
+- `PrinterConnection`: envío en bloques de **512 bytes con 50 ms de pausa** entre bloques — necesario porque la Ofichido tiene un búfer Bluetooth pequeño que se desborda con imágenes grandes enviadas de golpe
+- Tests: `GeneradorQrTest` (7 tests, ida y vuelta con ZXing), `GeneradorCodigoBarrasTest` (5 tests), `MotorEscPosTest` (3 tests nuevos)
+
+**QA aprobado** — 2026-10-26. Commit `feat: QR y códigos de barras` hecho.
+
+**Decisión de hardware documentada:**
+- La Ofichido no acepta varios `GS v 0` consecutivos para la misma imagen (solo imprime el último). `RasterEscPos.generar()` emite un único `GS v 0`; el control de caudal queda en `PrinterConnection`.
 
 ## Módulo 003 — Imágenes y Logo
 
@@ -78,7 +98,9 @@
 - `LogoRepository` usa DataStore `"logo"` separado del `"ajustes"` de `PreferenciasRepository`.
 - `debounce(150)` en claridad requiere `@OptIn(FlowPreview::class)`.
 - `installDebug` (no `assembleDebug`) es el comando correcto para instalar en el dispositivo conectado.
+- `RasterEscPos.generar()` emite un único `GS v 0` (no franjas): la Ofichido ignora varios `GS v 0` consecutivos para la misma imagen.
+- `PrinterConnection` envía en bloques de 512 bytes con 50 ms de pausa: la Ofichido tiene un búfer Bluetooth pequeño que se desborda con payloads grandes enviados de golpe.
 
 ## Próximos pasos
 
-1. Iniciar módulo 004 (QR y código de barras).
+1. Iniciar módulo 005 (contrato de bloques y receptor de enlaces).

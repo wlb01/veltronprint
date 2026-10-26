@@ -74,4 +74,7 @@
     <string name="error_no_responde">La impresora no responde. Verifica que esté encendida, cerca del equipo y que ningún otro dispositivo esté conectado a ella.</string>
     <string name="error_ya_no_emparejada">La impresora guardada ya no está emparejada. Vuelve a emparejarla o elige otra.</string>
     <string name="error_conexion_perdida">Se perdió la conexión con la impresora mientras se enviaban los datos.</string>
+
+    <!-- Módulo 004: Errores de contenido -->
+    <string name="error_codigo_invalido">No se pudo generar un código del ticket. Revisa el contenido del QR o del código de barras.</string>
 </resources>

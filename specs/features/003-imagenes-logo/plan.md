@@ -21,7 +21,7 @@
 - `app/src/main/java/mx/veltrontech/print/imagen/RasterEscPos.kt`:
   - `fun posicionar(imagen: ImagenMonocromo, alineacion: Alineacion): ImagenMonocromo` — coloca la imagen en un lienzo de 576 puntos de ancho (blanco alrededor) según la alineación. Se hace así en vez de usar `ESC a`, porque varias impresoras genéricas ignoran la alineación en imágenes.
   - `fun empaquetar(imagen: ImagenMonocromo): ByteArray` — 8 puntos por byte, bit más alto = izquierda.
-  - `fun generar(imagen: ImagenMonocromo, alineacion: Alineacion): ByteArray` — posiciona, empaqueta y divide en franjas de máximo 128 filas, cada una con su propio comando `GS v 0`, para no desbordar el búfer de la impresora.
+  - `fun generar(imagen: ImagenMonocromo, alineacion: Alineacion): ByteArray` — posiciona en el lienzo de 576 px, empaqueta y emite **un único comando `GS v 0`** con toda la imagen. Las franjas de 128 filas se descartaron: la Ofichido no acepta varios `GS v 0` consecutivos para la misma imagen. El control de caudal se hace en `PrinterConnection` (bloques de 512 bytes, 50 ms de pausa).
 
 **Almacenamiento del logo**
 - `app/src/main/java/mx/veltrontech/print/imagen/LogoRepository.kt`:
@@ -37,7 +37,7 @@
 
 **Pruebas JUnit** (`app/src/test/java/mx/veltrontech/print/imagen/`)
 - `ConversorImagenTest.kt` — negro puro → negro; blanco → blanco; transparente → blanco; gris 100 con nivel 128 → negro y con nivel 90 → blanco; tramado de un gris 50% produce aproximadamente la mitad de puntos negros; `calcularTamano(611, 290, 432)` = `(432, 205)`; una imagen muy alta se limita a 600 de alto.
-- `RasterEscPosTest.kt` — `empaquetar` de una fila `10000001` = `0x81`; ancho no múltiplo de 8 se rellena con blanco; `posicionar` centrado de 288 puntos deja 144 blancos a cada lado; una imagen de 300 filas genera 3 comandos `GS v 0` (128 + 128 + 44); encabezado `1D 76 30 00 48 00 80 00` para una franja de 576 × 128.
+- `RasterEscPosTest.kt` — `empaquetar` de una fila `10000001` = `0x81`; ancho no múltiplo de 8 se rellena con blanco; `posicionar` centrado de 288 puntos deja 144 blancos a cada lado; una imagen de 300 filas genera **1 único comando `GS v 0`** con `yH=1`; encabezado `1D 76 30 00 48 00 80 00` para una imagen de 576 × 128.
 
 ## Archivos a modificar
 

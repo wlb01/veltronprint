@@ -141,6 +141,7 @@ Nombres del dominio (pantallas, variables de negocio, tablas) en español; térm
 - Nunca hagas operaciones de Bluetooth ni de base de datos en el hilo principal.
 - Antes de cualquier operación Bluetooth, verifica permisos con los dos esquemas: `BLUETOOTH_CONNECT` en Android 12+ (no se usa `BLUETOOTH_SCAN` porque la app no busca dispositivos) y `BLUETOOTH`/`BLUETOOTH_ADMIN` (`maxSdkVersion="30"`) en Android 11 o menor.
 - Toda conexión se cierra en `finally` o con `use {}`. Nunca dejes un socket abierto tras un error.
+- Los datos se envían en bloques de **512 bytes con 50 ms de pausa** entre bloques (`PrinterConnection`). La Ofichido POS-8390L tiene un búfer de recepción Bluetooth pequeño; enviar todo de golpe provoca que descarte datos a mitad de las imágenes.
 - Cualquier error del Bluetooth se traduce a un mensaje en español para el usuario; nunca muestres una excepción cruda.
 
 **ESC/POS**

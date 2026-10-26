@@ -1,7 +1,9 @@
 package mx.veltrontech.print.escpos
 
+import mx.veltrontech.print.codigos.CodigoInvalidoException
 import mx.veltrontech.print.contrato.Bloque
 import mx.veltrontech.print.contrato.ModoCorte
+import mx.veltrontech.print.contrato.TamanoQr
 import mx.veltrontech.print.contrato.Trabajo
 import mx.veltrontech.print.imagen.ImagenMonocromo
 import org.junit.Assert.assertArrayEquals
@@ -94,6 +96,31 @@ class MotorEscPosTest {
             if (bytes[i] == 0x1D.toByte() && bytes[i + 1] == 0x76.toByte()) { found = true; break }
         }
         assertTrue("Esperado comando GS v 0 (0x1D 0x76)", found)
+    }
+
+    @Test fun qrGeneraRaster() {
+        val bytes = motor.generar(trabajo(Bloque.Qr("ABC", TamanoQr.CHICO)))
+        var found = false
+        for (i in 0 until bytes.size - 1) {
+            if (bytes[i] == 0x1D.toByte() && bytes[i + 1] == 0x76.toByte()) { found = true; break }
+        }
+        assertTrue("Bloque QR debe generar comandos GS v 0", found)
+    }
+
+    @Test fun codigoBarrasConTextoGeneraImagenYTexto() {
+        val bytes = motor.generar(trabajo(Bloque.CodigoBarras("ABC", mostrarTexto = true)))
+        var foundGsV0 = false
+        for (i in 0 until bytes.size - 1) {
+            if (bytes[i] == 0x1D.toByte() && bytes[i + 1] == 0x76.toByte()) { foundGsV0 = true; break }
+        }
+        assertTrue("Código de barras debe generar GS v 0", foundGsV0)
+        val abcBytes = Codificador.codificar("ABC", TablaCaracteres.CP850)
+        assertTrue("Debe incluir el valor en texto", bytes.toList().containsAll(abcBytes.toList()))
+    }
+
+    @Test(expected = CodigoInvalidoException::class)
+    fun codigoBarrasInvalidoLanzaExcepcion() {
+        motor.generar(trabajo(Bloque.CodigoBarras("A".repeat(41))))
     }
 
     // Logo sin imagen → no genera bytes de imagen

@@ -9,17 +9,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mx.veltrontech.print.R
 import mx.veltrontech.print.ajustes.ticketPrueba
 import mx.veltrontech.print.bluetooth.ImpresoraGuardada
 import mx.veltrontech.print.bluetooth.PrinterConnection
 import mx.veltrontech.print.bluetooth.ResultadoEnvio
 import mx.veltrontech.print.datos.PreferenciasRepository
+import mx.veltrontech.print.escpos.ResultadoImpresion
 import mx.veltrontech.print.escpos.ServicioImpresion
 import java.time.LocalTime
 
-// Channel: cola de mensajes asíncrona donde cada valor se consume exactamente una vez.
-// Ideal para eventos de una sola vez como el snackbar.
-// receiveAsFlow() lo convierte en un Flow que la pantalla puede colectar.
 class InicioViewModel(
     private val preferenciasRepository: PreferenciasRepository,
     private val printerConnection: PrinterConnection,
@@ -29,7 +28,7 @@ class InicioViewModel(
     private val _uiState = MutableStateFlow(InicioUiState())
     val uiState: StateFlow<InicioUiState> = _uiState.asStateFlow()
 
-    private val _eventoSnackbar = Channel<Unit>(Channel.BUFFERED)
+    private val _eventoSnackbar = Channel<Int>(Channel.BUFFERED)
     val eventoSnackbar = _eventoSnackbar.receiveAsFlow()
 
     init {
@@ -74,19 +73,25 @@ class InicioViewModel(
         if (_uiState.value.imprimiendo) return
         _uiState.update { it.copy(imprimiendo = true) }
         viewModelScope.launch {
-            val resultado = servicioImpresion.imprimir(ticketPrueba())
             val hora = LocalTime.now()
-            if (resultado is ResultadoEnvio.Exito) {
-                _eventoSnackbar.send(Unit)
-                _uiState.update { it.copy(imprimiendo = false) }
-            } else {
-                _uiState.update { state ->
-                    state.copy(
-                        imprimiendo = false,
-                        estado = EstadoImpresora.NoResponde,
-                        ultimaPrueba = hora,
-                        error = resultado,
-                    )
+            when (val resultado = servicioImpresion.imprimir(ticketPrueba())) {
+                ResultadoImpresion.Exito -> {
+                    _eventoSnackbar.send(R.string.prueba_snackbar_exito)
+                    _uiState.update { it.copy(imprimiendo = false) }
+                }
+                is ResultadoImpresion.ErrorContenido -> {
+                    _eventoSnackbar.send(resultado.mensajeRes)
+                    _uiState.update { it.copy(imprimiendo = false) }
+                }
+                is ResultadoImpresion.ErrorConexion -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            imprimiendo = false,
+                            estado = EstadoImpresora.NoResponde,
+                            ultimaPrueba = hora,
+                            error = resultado.resultado,
+                        )
+                    }
                 }
             }
         }

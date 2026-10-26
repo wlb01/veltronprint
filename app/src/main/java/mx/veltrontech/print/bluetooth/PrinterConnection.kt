@@ -37,6 +37,8 @@ class PrinterConnection(
         val CMD_INIT = byteArrayOf(0x1B, 0x40.toByte()) // ESC @ — inicializa sin imprimir
         const val TIMEOUT_MS = 10_000L
         const val DELAY_CIERRE_MS = 300L // esperar que el búfer salga antes de cerrar
+        const val CHUNK_SIZE = 512       // bytes por bloque; da tiempo a la impresora de procesar
+        const val DELAY_CHUNK_MS = 50L   // pausa entre bloques
     }
 
     // Prueba la conexión enviando solo la inicialización (no imprime ni avanza papel)
@@ -68,9 +70,15 @@ class PrinterConnection(
                 socket = conectarConTimeout(device)
                 if (socket != null) {
                     try {
-                        socket.outputStream.write(bytes)
-                        socket.outputStream.flush()
-                        delay(DELAY_CIERRE_MS) // algunas impresoras pierden los últimos bytes si se cierra antes
+                        var offset = 0
+                        while (offset < bytes.size) {
+                            val end = minOf(offset + CHUNK_SIZE, bytes.size)
+                            socket.outputStream.write(bytes, offset, end - offset)
+                            socket.outputStream.flush()
+                            offset = end
+                            if (offset < bytes.size) delay(DELAY_CHUNK_MS)
+                        }
+                        delay(DELAY_CIERRE_MS)
                         resultado = ResultadoEnvio.Exito
                     } catch (e: IOException) {
                         resultado = ResultadoEnvio.ConexionPerdida
