@@ -2,6 +2,10 @@
 
 Última actualización: 2026-10-26
 
+## ⏸ En pausa
+
+Módulos 001–005 completos (**Hito 3 alcanzado del lado de la app**). El proyecto está en pausa mientras se construye la **feature 016 de Registro** (impresión con Veltron Print). El siguiente módulo a retomar es el **006 — Cola y reintento**.
+
 ## Estado general
 
 | Módulo | Estado | Notas |
@@ -11,7 +15,8 @@
 | 003 Imágenes y Logo | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
 | 004 QR y códigos de barras | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
 | 005 Receptor de enlaces | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
-| 006–009 | Sin iniciar | — |
+| 006 Cola y reintento | ⏸ En pausa | Próximo módulo al retomar |
+| 007–009 | Sin iniciar | — |
 
 ## Módulo 005 — Receptor de enlaces
 
@@ -120,4 +125,5 @@
 
 ## Próximos pasos
 
-1. Iniciar módulo 006 (cola de impresión y reintento automático).
+1. Terminar feature 016 de Registro (impresión con Veltron Print).
+2. Retomar módulo 006 (cola de impresión y reintento automático).
