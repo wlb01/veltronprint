@@ -34,6 +34,39 @@
     <string name="prueba_boton_imprimiendo">Imprimiendo…</string>
     <string name="prueba_snackbar_exito">Ticket enviado a la impresora.</string>
 
+    <!-- Navegación -->
+    <string name="nav_regresar">Regresar</string>
+    <string name="nav_ajustes">Ajustes</string>
+
+    <!-- Módulo 003: Ajustes — Logo -->
+    <string name="ajustes_titulo">Ajustes</string>
+    <string name="ajustes_logo_titulo">Logo</string>
+    <string name="ajustes_logo_sin_logo">Aún no hay logo. Se imprime en los tickets que lo incluyan.</string>
+    <string name="ajustes_logo_elegir">Elegir imagen</string>
+    <string name="ajustes_logo_elegir_otra">Elegir otra imagen</string>
+    <string name="ajustes_logo_guardar">Guardar logo</string>
+    <string name="ajustes_logo_imprimir_prueba">Imprimir logo de prueba</string>
+    <string name="ajustes_logo_quitar">Quitar logo</string>
+    <string name="ajustes_logo_guardado">Logo guardado.</string>
+    <string name="ajustes_logo_modo">Modo de conversión</string>
+    <string name="ajustes_logo_modo_umbral">Umbral</string>
+    <string name="ajustes_logo_modo_tramado">Tramado</string>
+    <string name="ajustes_logo_claridad">Claridad</string>
+    <string name="ajustes_logo_claridad_descripcion">Más oscuro ← → Más claro</string>
+    <string name="ajustes_logo_tamano">Tamaño</string>
+    <string name="ajustes_logo_50">50%</string>
+    <string name="ajustes_logo_75">75%</string>
+    <string name="ajustes_logo_100">100%</string>
+    <string name="ajustes_dialog_cambios_titulo">Cambios sin guardar</string>
+    <string name="ajustes_dialog_cambios_texto">Tienes cambios sin guardar en el logo. ¿Quieres descartarlos?</string>
+    <string name="ajustes_dialog_cambios_seguir">Seguir editando</string>
+    <string name="ajustes_dialog_cambios_descartar">Descartar</string>
+    <string name="ajustes_dialog_quitar_texto">Se quitará el logo de todos los tickets. ¿Continuar?</string>
+    <string name="ajustes_dialog_quitar_cancelar">Cancelar</string>
+    <string name="ajustes_dialog_quitar_confirmar">Quitar</string>
+    <string name="error_imagen_invalida">No se pudo abrir la imagen. Elige un archivo PNG o JPG.</string>
+    <string name="error_logo_no_guardado">No se pudo guardar el logo. Intenta de nuevo.</string>
+
     <!-- Mensajes de error exactos (spec módulo 001 §5) -->
     <string name="error_sin_bluetooth">Este equipo no tiene Bluetooth. Veltron Print no puede funcionar aquí.</string>
     <string name="error_bluetooth_apagado">Bluetooth está apagado. Enciéndelo para usar la impresora.</string>

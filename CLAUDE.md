@@ -86,7 +86,7 @@ veltron-print/
 │       │   │   ├── datos/                 ← base de datos Room y DataStore
 │       │   │   ├── cola/                  ← 006 cola y reintento
 │       │   │   ├── historial/             ← 007
-│       │   │   ├── ajustes/               ← 008
+│       │   │   ├── ajustes/               ← 003 logo; 008 resto de ajustes
 │       │   │   ├── manual/                ← 009 tickets manuales
 │       │   │   └── ui/
 │       │   │       ├── theme/             ← Color.kt, Type.kt, Theme.kt

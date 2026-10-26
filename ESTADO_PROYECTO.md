@@ -8,7 +8,32 @@
 |--------|--------|-------|
 | 001 Conexión Bluetooth | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
 | 002 Motor ESC/POS | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
-| 003–009 | Sin iniciar | — |
+| 003 Imágenes y Logo | ✅ Completo | QA aprobado en Galaxy Tab S10 Lite (Android 16) |
+| 004–009 | Sin iniciar | — |
+
+## Módulo 003 — Imágenes y Logo
+
+**Completado (código):**
+- `ImagenMonocromo`: modelo puro sin dependencias Android
+- `ConversorImagen`: `aGrises`, `umbral`, tramado Floyd-Steinberg, `calcularTamano` — funciones puras testeables con JUnit
+- `OpcionesLogo` / `TamanoLogo` / `ModoConversion` / `LogoGuardado` / `EdicionLogo`
+- `ProcesadorImagen`: único archivo que usa Bitmap; decodifica con `ImageDecoder` (API 28+) y `BitmapFactory` (API 26-27), escala, procesa; convierte `ImagenMonocromo` ↔ `ImageBitmap`
+- `RasterEscPos`: posicionar en lienzo 576 px, empaquetar 8 bits/byte MSB, generar franjas de 128 filas con GS v 0
+- `LogoRepository`: guarda logo en `filesDir/logo/` con archivos temporales → rename; DataStore `"logo"` para opciones
+- `ComandosEscPos.imagenRaster`: GS v 0 con encabezado xL xH yL yH
+- `MotorEscPos.generar(trabajo, logo?)`: bloque Logo → `RasterEscPos.generar` si hay logo, vacío si no
+- `ServicioImpresion`: carga logo del repositorio; `imprimirLogoPrueba()` imprime solo logo + corte
+- `AjustesViewModel`: state flow con `guardado`, `edicion`, `vistaPreviaGuardada`; debounce 150 ms en claridad; recicla bitmaps
+- `VistaPreviaPapel`: imagen en blanco y negro sobre fondo blanco con `FilterQuality.None`; fracción de ancho correcta
+- `SeccionLogo`: controles (modo, claridad, tamaño), botones (elegir, guardar, imprimir prueba, quitar)
+- `AjustesScreen`: layout adaptable (>600 dp → Row preview+controls; ≤600 → Column); diálogos "Cambios sin guardar" y "Quitar logo"; `BackHandler`
+- Ruta `ajustes` en NavHost; engrane en TopAppBar de Inicio
+- Tests: `ConversorImagenTest` (7 tests), `RasterEscPosTest` (5 tests), `MotorEscPosTest` (11 tests)
+
+**QA aprobado** — 2026-10-25. Commit `feat: logo e impresión de imágenes` hecho.
+
+**Pendiente de hardware futuro:**
+- Honor X8: verificación visual pendiente (no disponible en la sesión de QA).
 
 ## Módulo 002 — Motor ESC/POS
 
@@ -24,8 +49,7 @@
 - Interfaz: tarjeta "Prueba de impresión", snackbar, dos tarjetas lado a lado en horizontal
 - Tests JUnit: `ComandosEscPosTest`, `CodificadorTest`, `AjusteLineaTest`, `MotorEscPosTest`
 
-**QA aprobado** — 2026-10-25. Ambas tablas (CP850 y WIN1252) salieron correctas; se usa CP850 como predeterminada.
-Commit `feat: motor ESC/POS e impresión de prueba` hecho.
+**QA aprobado** — 2026-10-25. Commit `feat: motor ESC/POS e impresión de prueba` hecho.
 
 **Pendiente de hardware futuro:**
 - El bloque `cajon` abre el cajón de dinero (cuando Daniel lo tenga; cubierto por JUnit).
@@ -34,11 +58,11 @@ Commit `feat: motor ESC/POS e impresión de prueba` hecho.
 
 **Completado (código):**
 - Infraestructura base: tema Veltron, tipografía Montserrat (fuente variable), colores exactos
-- Navegación: NavHost con rutas `inicio` y `elegir_impresora`
+- Navegación: NavHost con rutas `inicio`, `elegir_impresora` y `ajustes`
 - DataStore: guardado y lectura de impresora vinculada (nombre + MAC)
 - Bluetooth: permisos, lista de emparejados, conexión RFCOMM con fallback por reflexión
 - PrinterConnection: mutex, watchdog 10 s, delay 300 ms tras escritura, cierre en `finally`
-- Pantallas: Inicio (tarjeta con 4 estados), ElegirImpresora (lista adaptable horizontal/vertical)
+- Pantallas: Inicio (tarjeta con 4 estados + engrane de Ajustes), ElegirImpresora (lista adaptable)
 - Tests JUnit: PermisosBluetoothTest, OrdenarDispositivosTest
 
 **QA aprobado** — 2026-10-25. Commit `feat: conexión Bluetooth con la impresora` hecho.
@@ -46,15 +70,15 @@ Commit `feat: motor ESC/POS e impresión de prueba` hecho.
 ## Decisiones técnicas
 
 - Montserrat se usa como fuente variable (`montserrat_variable.ttf`, peso 100–900).
-  Los estáticos ya no están en el repo de Google Fonts; la variable cubre todos los pesos.
-- `LocalLifecycleOwner` se obtiene via `LocalContext.current as ComponentActivity`
-  para evitar dependencia explícita de `lifecycle-runtime-compose`.
+- `LocalLifecycleOwner` se obtiene via `LocalContext.current as ComponentActivity`.
 - El plugin `kotlin-android` NO se declara explícitamente: AGP 9.4.1 lo aplica automáticamente.
-- `TablaCaracteres`: mapa propio en lugar de `Charset.forName("IBM850")` porque no todas las
-  versiones de Android incluyen esa codificación y el mapa es testable con JUnit.
-- `BloquePruebaTabla` vive en `contrato/` (mismo paquete que el sealed interface `Bloque`)
-  pero es interno; se elimina en el módulo 008.
+- `TablaCaracteres`: mapa propio (no `Charset.forName("IBM850")`) — testable con JUnit.
+- `BloquePruebaTabla` vive en `contrato/`; se elimina en el módulo 008.
+- `RasterEscPos.posicionar`: coloca la imagen en datos (no usa `ESC a`) para máxima compatibilidad.
+- `LogoRepository` usa DataStore `"logo"` separado del `"ajustes"` de `PreferenciasRepository`.
+- `debounce(150)` en claridad requiere `@OptIn(FlowPreview::class)`.
+- `installDebug` (no `assembleDebug`) es el comando correcto para instalar en el dispositivo conectado.
 
 ## Próximos pasos
 
-1. Iniciar módulo 003 (Conversión de imagen a 1 bit y logo).
+1. Iniciar módulo 004 (QR y código de barras).

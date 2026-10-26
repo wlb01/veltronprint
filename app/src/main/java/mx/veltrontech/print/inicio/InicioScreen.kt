@@ -17,7 +17,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -57,6 +61,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 fun InicioScreen(
     container: AppContainer,
     onVincularImpresora: () -> Unit,
+    onAbrirAjustes: () -> Unit = {},
     viewModel: InicioViewModel = viewModel {
         InicioViewModel(
             container.preferenciasRepository,
@@ -116,7 +121,16 @@ fun InicioScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = androidx.compose.material3.MaterialTheme.colorScheme.primary,
                     titleContentColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
                 ),
+                actions = {
+                    IconButton(onClick = onAbrirAjustes) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = stringResource(R.string.nav_ajustes),
+                        )
+                    }
+                },
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },

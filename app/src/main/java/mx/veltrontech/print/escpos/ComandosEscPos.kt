@@ -46,4 +46,20 @@ object ComandosEscPos {
 
     /** Pulso de apertura del cajón de dinero: pin 2, 25 ms on, 250 ms off. */
     val ABRIR_CAJON = byteArrayOf(0x1B, 0x70, 0x00, 0x19, 0xFA.toByte())
+
+    /**
+     * GS v 0 — imprime una imagen de puntos.
+     * Cada byte son 8 puntos horizontales, el bit más alto es el de la izquierda, 1 = negro.
+     * anchoBytes: ancho en bytes (puntos / 8); alto: filas de puntos.
+     */
+    fun imagenRaster(anchoBytes: Int, alto: Int, datos: ByteArray): ByteArray {
+        val header = byteArrayOf(
+            0x1D, 0x76, 0x30, 0x00,
+            (anchoBytes and 0xFF).toByte(),
+            ((anchoBytes shr 8) and 0xFF).toByte(),
+            (alto and 0xFF).toByte(),
+            ((alto shr 8) and 0xFF).toByte(),
+        )
+        return header + datos
+    }
 }

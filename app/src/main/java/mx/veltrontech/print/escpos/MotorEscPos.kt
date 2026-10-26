@@ -19,6 +19,8 @@ import mx.veltrontech.print.escpos.ComandosEscPos.negrita
 import mx.veltrontech.print.escpos.ComandosEscPos.subrayado
 import mx.veltrontech.print.escpos.ComandosEscPos.tablaCaracteres
 import mx.veltrontech.print.escpos.ComandosEscPos.tamano
+import mx.veltrontech.print.imagen.ImagenMonocromo
+import mx.veltrontech.print.imagen.RasterEscPos
 import java.io.ByteArrayOutputStream
 
 class MotorEscPos(
@@ -26,25 +28,25 @@ class MotorEscPos(
     private val corteDefault: ModoCorte = ConfigImpresion.CORTE_PREDETERMINADO,
 ) {
 
-    fun generar(trabajo: Trabajo): ByteArray {
+    fun generar(trabajo: Trabajo, logo: ImagenMonocromo? = null): ByteArray {
         val out = ByteArrayOutputStream()
         repeat(trabajo.copias.coerceAtLeast(1)) {
             out.write(INICIALIZAR)
             out.write(tablaCaracteres(tabla.numero))
             for (bloque in trabajo.bloques) {
-                out.write(generarBloque(bloque))
+                out.write(generarBloque(bloque, logo))
                 out.write(resetEstilos())
             }
         }
         return out.toByteArray()
     }
 
-    private fun generarBloque(bloque: Bloque): ByteArray = when (bloque) {
+    private fun generarBloque(bloque: Bloque, logo: ImagenMonocromo?): ByteArray = when (bloque) {
         is Bloque.Texto -> generarTexto(bloque)
         is Bloque.Par -> generarPar(bloque)
         is Bloque.Separador -> generarSeparador(bloque)
         is Bloque.Espacio -> avanzarLineas(bloque.lineas)
-        is Bloque.Logo -> generarTextoSimple("[LOGO]", bloque.alinear.ordinal)
+        is Bloque.Logo -> if (logo != null) RasterEscPos.generar(logo, bloque.alinear) else ByteArray(0)
         is Bloque.Qr -> generarTextoSimple("[QR]", bloque.alinear.ordinal)
         is Bloque.CodigoBarras -> generarTextoSimple("[CÓDIGO DE BARRAS]", bloque.alinear.ordinal)
         is Bloque.Corte -> cortar(bloque.modo ?: corteDefault)

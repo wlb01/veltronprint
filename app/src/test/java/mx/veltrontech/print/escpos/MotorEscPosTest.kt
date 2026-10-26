@@ -3,6 +3,7 @@ package mx.veltrontech.print.escpos
 import mx.veltrontech.print.contrato.Bloque
 import mx.veltrontech.print.contrato.ModoCorte
 import mx.veltrontech.print.contrato.Trabajo
+import mx.veltrontech.print.imagen.ImagenMonocromo
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -78,8 +79,34 @@ class MotorEscPosTest {
 
     @Test fun trabajoVacioSoloCabecera() {
         val bytes = motor.generar(trabajo())
-        // Solo INICIALIZAR + tabla, sin bloques ni resets
         val esperado = ComandosEscPos.INICIALIZAR + ComandosEscPos.tablaCaracteres(TablaCaracteres.CP850.numero)
         assertArrayEquals(esperado, bytes)
+    }
+
+    // Logo con imagen → contiene el encabezado GS v 0
+    @Test fun logoConImagenGeneraRaster() {
+        val negros = BooleanArray(576 * 10) { false }
+        val logo = ImagenMonocromo(576, 10, negros)
+        val bytes = motor.generar(trabajo(Bloque.Logo()), logo)
+        // El comando GS v 0 debe aparecer en los bytes
+        var found = false
+        for (i in 0 until bytes.size - 3) {
+            if (bytes[i] == 0x1D.toByte() && bytes[i + 1] == 0x76.toByte()) { found = true; break }
+        }
+        assertTrue("Esperado comando GS v 0 (0x1D 0x76)", found)
+    }
+
+    // Logo sin imagen → no genera bytes de imagen
+    @Test fun logoSinImagenNoProduce() {
+        val sinLogo = motor.generar(trabajo(Bloque.Logo()), null)
+        val conLogo = motor.generar(trabajo(Bloque.Espacio(1)), null)
+        // Sin logo, solo hay cabecera + reset (sin datos de imagen, tamaño similar al bloque vacío)
+        // El trabajo con Logo sin imagen debería tener menos bytes que uno con una imagen real
+        // Verificación simple: no aparece 0x1D 0x76 en la salida
+        var found = false
+        for (i in 0 until sinLogo.size - 1) {
+            if (sinLogo[i] == 0x1D.toByte() && sinLogo[i + 1] == 0x76.toByte()) { found = true; break }
+        }
+        assertTrue("Logo sin imagen no debe generar GS v 0", !found)
     }
 }
