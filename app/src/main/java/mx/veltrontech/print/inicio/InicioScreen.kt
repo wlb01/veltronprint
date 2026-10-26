@@ -7,12 +7,20 @@ import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -25,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,11 +44,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import mx.veltrontech.print.AppContainer
 import mx.veltrontech.print.R
 import mx.veltrontech.print.bluetooth.ImpresoraGuardada
+import mx.veltrontech.print.bluetooth.PermisosBluetooth
 import mx.veltrontech.print.bluetooth.ResultadoEnvio
 import mx.veltrontech.print.ui.componentes.AvisoPermiso
 import mx.veltrontech.print.ui.componentes.TarjetaImpresora
+import mx.veltrontech.print.ui.componentes.TarjetaPruebaImpresion
 import mx.veltrontech.print.ui.theme.VeltronPrintTheme
-import mx.veltrontech.print.bluetooth.PermisosBluetooth
+import androidx.compose.foundation.layout.BoxWithConstraints
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,13 +58,26 @@ fun InicioScreen(
     container: AppContainer,
     onVincularImpresora: () -> Unit,
     viewModel: InicioViewModel = viewModel {
-        InicioViewModel(container.preferenciasRepository, container.printerConnection)
+        InicioViewModel(
+            container.preferenciasRepository,
+            container.printerConnection,
+            container.servicioImpresion,
+        )
     },
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val msgExito = stringResource(R.string.prueba_snackbar_exito)
 
-    // --- Manejo de permisos (solo en API 31+) ---
+    // Colecta el evento de una sola vez para el snackbar
+    LaunchedEffect(viewModel) {
+        viewModel.eventoSnackbar.collect {
+            snackbarHostState.showSnackbar(msgExito)
+        }
+    }
+
+    // Permisos Bluetooth (solo en API 31+)
     var tienePermiso by remember { mutableStateOf(PermisosBluetooth.tienePermisos(context)) }
     var negadoPermanente by remember { mutableStateOf(false) }
 
@@ -68,14 +92,12 @@ fun InicioScreen(
         }
     }
 
-    // Re-verificar permisos al volver de los Ajustes de Android
     LaunchedEffect(context) {
         (context as? ComponentActivity)?.lifecycle?.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             tienePermiso = PermisosBluetooth.tienePermisos(context)
         }
     }
 
-    // --- Launcher para pedir encender Bluetooth ---
     val encenderBtLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -96,9 +118,9 @@ fun InicioScreen(
                     titleContentColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
                 ),
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
-        // Centrar con ancho máximo para que no se estire en la tablet
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -124,31 +146,77 @@ fun InicioScreen(
                     modifier = Modifier.widthIn(max = 560.dp),
                 )
             } else {
-                TarjetaImpresora(
-                    impresora = uiState.impresora,
-                    estado = uiState.estado,
-                    ultimaPrueba = uiState.ultimaPrueba,
-                    error = uiState.error,
-                    onVincular = {
-                        if (android.bluetooth.BluetoothAdapter.getDefaultAdapter()?.isEnabled == false) {
-                            @Suppress("DEPRECATION")
-                            encenderBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-                        } else {
-                            onVincularImpresora()
+                // BoxWithConstraints: adapta el layout según el ancho disponible.
+                // En tablet horizontal (>600dp) las tarjetas van lado a lado; en vertical, apiladas.
+                BoxWithConstraints(modifier = Modifier.widthIn(max = 840.dp).fillMaxWidth()) {
+                    if (maxWidth > 600.dp) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            TarjetaImpresora(
+                                impresora = uiState.impresora,
+                                estado = uiState.estado,
+                                ultimaPrueba = uiState.ultimaPrueba,
+                                error = uiState.error,
+                                onVincular = {
+                                    if (BluetoothAdapter.getDefaultAdapter()?.isEnabled == false) {
+                                        @Suppress("DEPRECATION")
+                                        encenderBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+                                    } else {
+                                        onVincularImpresora()
+                                    }
+                                },
+                                onProbar = viewModel::probarConexion,
+                                onCambiar = onVincularImpresora,
+                                modifier = Modifier.weight(1f),
+                            )
+                            TarjetaPruebaImpresion(
+                                impresora = uiState.impresora,
+                                imprimiendo = uiState.imprimiendo,
+                                onImprimir = viewModel::imprimirPrueba,
+                                modifier = Modifier.weight(1f),
+                            )
                         }
-                    },
-                    onProbar = viewModel::probarConexion,
-                    onCambiar = onVincularImpresora,
-                    modifier = Modifier.widthIn(max = 560.dp),
-                )
+                    } else {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState()),
+                        ) {
+                            TarjetaImpresora(
+                                impresora = uiState.impresora,
+                                estado = uiState.estado,
+                                ultimaPrueba = uiState.ultimaPrueba,
+                                error = uiState.error,
+                                onVincular = {
+                                    if (BluetoothAdapter.getDefaultAdapter()?.isEnabled == false) {
+                                        @Suppress("DEPRECATION")
+                                        encenderBtLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+                                    } else {
+                                        onVincularImpresora()
+                                    }
+                                },
+                                onProbar = viewModel::probarConexion,
+                                onCambiar = onVincularImpresora,
+                            )
+                            TarjetaPruebaImpresion(
+                                impresora = uiState.impresora,
+                                imprimiendo = uiState.imprimiendo,
+                                onImprimir = viewModel::imprimirPrueba,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
 
-@Preview(showBackground = true, name = "Inicio — sin impresora")
+@Preview(showBackground = true, name = "Inicio — vertical, sin impresora")
 @Composable
-private fun InicioSinImpresoraPreview() {
+private fun InicioVerticalPreview() {
     VeltronPrintTheme {
         Scaffold(
             topBar = {
@@ -158,13 +226,16 @@ private fun InicioSinImpresoraPreview() {
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = androidx.compose.material3.MaterialTheme.colorScheme.primary,
                         titleContentColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
-                    )
+                    ),
                 )
             }
         ) { pad ->
-            Box(Modifier.fillMaxSize().padding(pad).padding(16.dp), Alignment.TopCenter) {
-                TarjetaImpresora(null, EstadoImpresora.SinProbar, null, null, {}, {}, {},
-                    modifier = Modifier.widthIn(max = 560.dp))
+            Column(
+                Modifier.fillMaxSize().padding(pad).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                TarjetaImpresora(null, EstadoImpresora.SinProbar, null, null, {}, {}, {})
+                TarjetaPruebaImpresion(null, false, {})
             }
         }
     }
@@ -182,18 +253,25 @@ private fun InicioConImpresoraPreview() {
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = androidx.compose.material3.MaterialTheme.colorScheme.primary,
                         titleContentColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
-                    )
+                    ),
                 )
             }
         ) { pad ->
-            Box(Modifier.fillMaxSize().padding(pad).padding(16.dp), Alignment.TopCenter) {
+            Column(
+                Modifier.fillMaxSize().padding(pad).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
                 TarjetaImpresora(
                     impresora = ImpresoraGuardada("POS-8390L", "86:67:7A:12:34:56"),
                     estado = EstadoImpresora.Lista,
                     ultimaPrueba = java.time.LocalTime.of(10, 45),
                     error = null,
                     onVincular = {}, onProbar = {}, onCambiar = {},
-                    modifier = Modifier.widthIn(max = 560.dp),
+                )
+                TarjetaPruebaImpresion(
+                    impresora = ImpresoraGuardada("POS-8390L", "86:67:7A:12:34:56"),
+                    imprimiendo = false,
+                    onImprimir = {},
                 )
             }
         }

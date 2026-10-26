@@ -27,6 +27,13 @@
     <string name="permiso_boton_dar">Dar permiso</string>
     <string name="permiso_boton_ajustes">Abrir ajustes de la app</string>
 
+    <!-- Módulo 002: Prueba de impresión -->
+    <string name="prueba_titulo">Prueba de impresión</string>
+    <string name="prueba_descripcion">Imprime el ticket oficial de registro con datos de ejemplo y una prueba de acentos.</string>
+    <string name="prueba_boton_imprimir">Imprimir ticket de prueba</string>
+    <string name="prueba_boton_imprimiendo">Imprimiendo…</string>
+    <string name="prueba_snackbar_exito">Ticket enviado a la impresora.</string>
+
     <!-- Mensajes de error exactos (spec módulo 001 §5) -->
     <string name="error_sin_bluetooth">Este equipo no tiene Bluetooth. Veltron Print no puede funcionar aquí.</string>
     <string name="error_bluetooth_apagado">Bluetooth está apagado. Enciéndelo para usar la impresora.</string>
